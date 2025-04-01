@@ -1,30 +1,89 @@
-<script>
-    function confirmAttendance(response) {
-        const firstName = prompt("Por favor, ingresa tu nombre:");
-        const lastName = prompt("Por favor, ingresa tu apellido:");
-        
-        if (firstName && lastName) {
-            sendToGoogleSheets(firstName, lastName, response);
-            alert("¡Gracias por confirmar tu asistencia!");
-        } else {
-            alert("Por favor, ingresa tu nombre y apellido para confirmar.");
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitación de Boda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #fce4ec;
+            color: #0e2f88;
+            margin: 0;
+            padding: 0;
         }
-    }
+        .container {
+            padding: 20px;
+        }
+        .title {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        .details {
+            font-size: 1.2em;
+        }
+        .confirm-section {
+            margin-top: 30px;
+        }
+        .confirm-button {
+            background-color: #d81b60;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            margin: 10px;
+        }
+        .confirm-button:hover {
+            background-color: #ad1457;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">¡Nos casamos!</h1>
+        <p class="details">Abril & [Nombre de tu pareja]</p>
+        <p class="details">Fecha: [Fecha de la boda]</p>
+        <p class="details">Lugar: [Lugar del evento]</p>
+        <p class="details">Te esperamos para celebrar juntos este día tan especial.</p>
+    </div>
+    
+    <div class="container confirm-section">
+        <h2>¿Nos acompañarás?</h2>
+        <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
+        <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
+    </div>
 
-    function sendToGoogleSheets(firstName, lastName, response) {
-        const url = "https://script.google.com/macros/s/AKfycbzOQ4oSUuhVqKGJHIqg--BgQ-1Xk-iEtPZuChySsEXQM8A7suQZfAj4_X_7eBKbHAe63g/exec"; 
-        
-        const formData = new FormData();
-        formData.append("nombre", firstName);
-        formData.append("apellido", lastName);
-        formData.append("confirmacion", response);
-        
-        fetch(url, {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.text())
-        .then(data => console.log(data))
-        .catch(error => console.error("Error:", error));
-    }
-</script>
+    <script>
+        function confirmAttendance(response) {
+            const firstName = prompt("Por favor, ingresa tu nombre:");
+            const lastName = prompt("Por favor, ingresa tu apellido:");
+            
+            if (firstName && lastName) {
+                sendToGoogleSheets(firstName, lastName, response);
+                alert("¡Gracias por confirmar tu asistencia!");
+            } else {
+                alert("Por favor, ingresa tu nombre y apellido para confirmar.");
+            }
+        }
+    
+        function sendToGoogleSheets(firstName, lastName, response) {
+            const url = "https://script.google.com/macros/s/AKfycbzOQ4oSUuhVqKGJHIqg--BgQ-1Xk-iEtPZuChySsEXQM8A7suQZfAj4_X_7eBKbHAe63g/exec"; 
+            
+            const formData = new FormData();
+            formData.append("nombre", firstName);
+            formData.append("apellido", lastName);
+            formData.append("confirmacion", response);
+            
+            fetch(url, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => console.log(data))
+            .catch(error => console.error("Error:", error));
+        }
+    </script>
+</body>
+</html>
