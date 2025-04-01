@@ -9,7 +9,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             background-color: #fce4ec;
-            color: #0e2f88;
+            color: #880e4f;
             margin: 0;
             padding: 0;
         }
@@ -38,6 +38,15 @@
         .confirm-button:hover {
             background-color: #ad1457;
         }
+        .form-container {
+            margin-top: 20px;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            border: 1px solid #880e4f;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -49,27 +58,33 @@
         <p class="details">Te esperamos para celebrar juntos este día tan especial.</p>
     </div>
     
-    <div class="container confirm-section">
-        <h2>¿Nos acompañarás?</h2>
-        <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
-        <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
+    <!-- Formulario para ingresar nombre y apellido -->
+    <div class="container form-container">
+        <h2>Confirma tu asistencia</h2>
+        <input type="text" id="nombre" placeholder="Tu nombre" required>
+        <input type="text" id="apellido" placeholder="Tu apellido" required>
+        <div class="confirm-section">
+            <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
+            <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
+        </div>
     </div>
 
     <script>
         function confirmAttendance(response) {
-            const firstName = prompt("Por favor, ingresa tu nombre:");
-            const lastName = prompt("Por favor, ingresa tu apellido:");
+            const firstName = document.getElementById("nombre").value.trim();
+            const lastName = document.getElementById("apellido").value.trim();
             
-            if (firstName && lastName) {
-                sendToGoogleSheets(firstName, lastName, response);
-                alert("¡Gracias por confirmar tu asistencia!");
-            } else {
+            if (firstName === "" || lastName === "") {
                 alert("Por favor, ingresa tu nombre y apellido para confirmar.");
+                return;
             }
+
+            sendToGoogleSheets(firstName, lastName, response);
+            alert("¡Gracias por confirmar tu asistencia!");
         }
-    
+
         function sendToGoogleSheets(firstName, lastName, response) {
-            const url = "https://script.google.com/macros/s/AKfycbw2SDE6YtGvuWhcJJMvO9RT1XbU72PpxW2KZzbArcRz2clJui08pRqt1tgc-dobgy2H3g/exec"; 
+            const url = "https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec"; 
             
             const formData = new FormData();
             formData.append("nombre", firstName);
