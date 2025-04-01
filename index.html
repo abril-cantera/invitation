@@ -5,135 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invitación de Boda</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #fce4ec;
-            color: #880e4f;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            padding: 20px;
-        }
-        .title {
-            font-size: 2.5em;
-            font-weight: bold;
-        }
-        .details {
-            font-size: 1.2em;
-        }
-        .confirm-section {
-            margin-top: 30px;
-        }
-        .confirm-button {
-            background-color: #d81b60;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 10px;
-        }
-        .confirm-button:hover {
-            background-color: #ad1457;
-        }
-        .form-container {
-            margin-top: 20px;
-        }
-        input {
-            padding: 10px;
-            margin: 5px;
-            border: 1px solid #880e4f;
-            border-radius: 5px;
-        }
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #fce4ec; color: #880e4f; }
+        .container { padding: 20px; }
+        .confirm-button { background-color: #d81b60; color: white; padding: 10px 20px; border: none; cursor: pointer; font-size: 1em; margin: 10px; }
+        .confirm-button:hover { background-color: #ad1457; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">¡Nos casamos!</h1>
-        <p class="details">Abril & [Nombre de tu pareja]</p>
-        <p class="details">Fecha: [Fecha de la boda]</p>
-        <p class="details">Lugar: [Lugar del evento]</p>
-        <p class="details">Te esperamos para celebrar juntos este día tan especial.</p>
-    </div>
-    
-    <!-- Formulario con nombre, apellido y cantidad de personas -->
-    <div class="container form-container">
-        <h2>Confirma tu asistencia</h2>
-        <input type="text" id="nombre" placeholder="Tu nombre" required oninput="buscarCantidad()">
-        <input type="text" id="apellido" placeholder="Tu apellido" required oninput="buscarCantidad()">
-        <p id="cantidad-texto"></p>
-        <div class="confirm-section">
-            <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
-            <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
-        </div>
+        <h1>¡Nos casamos!</h1>
+        <input type="text" id="nombre" placeholder="Tu nombre" required>
+        <input type="text" id="apellido" placeholder="Tu apellido" required>
+        <p id="cantidad-texto">Cantidad de personas permitidas: -</p>
+        <br>
+        <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
+        <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
     </div>
 
     <script>
-        function buscarCantidad() {
-            const firstName = document.getElementById("nombre").value.trim();
-            const lastName = document.getElementById("apellido").value.trim();
-            const cantidadTexto = document.getElementById("cantidad-texto");
+        const scriptURL = "https://script.google.com/macros/s/AKfycbx0QDiilxz09FpqvI6X9BxBcFNUM14Dn7rUc6kdsaWGqeaTgr3tv42p8tJ4kkjn-a6x/exec"; 
 
-            if (firstName === "" || lastName === "") {
-                cantidadTexto.innerText = "";
+        function confirmAttendance(respuesta) {
+            let nombre = document.getElementById("nombre").value.trim();
+            let apellido = document.getElementById("apellido").value.trim();
+
+            if (!nombre || !apellido) {
+                alert("Por favor, ingresa tu nombre y apellido.");
                 return;
             }
 
-            const url = `https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec?nombre=${encodeURIComponent(firstName)}&apellido=${encodeURIComponent(lastName)}`;
-            
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.cantidad !== "No encontrado") {
-                        cantidadTexto.innerText = `Personas permitidas: ${data.cantidad}`;
-                    } else {
-                        cantidadTexto.innerText = "Nombre no encontrado.";
-                    }
-                })
-                .catch(error => {
-                    console.error("Error:", error);
-                    cantidadTexto.innerText = "Error al obtener datos.";
-                });
-        }
-
-        function confirmAttendance(response) {
-            const firstName = document.getElementById("nombre").value.trim();
-            const lastName = document.getElementById("apellido").value.trim();
-            const cantidadTexto = document.getElementById("cantidad-texto").innerText;
-
-            if (firstName === "" || lastName === "" || cantidadTexto === "" || cantidadTexto === "Nombre no encontrado.") {
-                alert("Por favor, ingresa un nombre válido.");
-                return;
-            }
-
-            const cantidad = cantidadTexto.replace("Personas permitidas: ", "");
-
-            sendToGoogleSheets(firstName, lastName, response, cantidad);
-            alert("¡Gracias por confirmar tu asistencia!");
-        }
-
-        function sendToGoogleSheets(firstName, lastName, response, cantidad) {
-            const url = "https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec"; 
-            
             const formData = new FormData();
-            formData.append("nombre", firstName);
-            formData.append("apellido", lastName);
-            formData.append("confirmacion", response);
-            formData.append("cantidad", cantidad);
-            
-            fetch(url, {
+            formData.append("nombre", nombre);
+            formData.append("apellido", apellido);
+            formData.append("respuesta", respuesta);
+
+            fetch(scriptURL, {
                 method: "POST",
                 body: formData
             })
-            .then(response => response.text())
-            .then(data => console.log(data))
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error); // Si el usuario no está en la lista
+                } else {
+                    document.getElementById("cantidad-texto").innerText = `Cantidad de personas permitidas: ${data.cantidad}`;
+                    alert(data.mensaje); // Confirmación actualizada
+                }
+            })
             .catch(error => console.error("Error:", error));
         }
     </script>
 </body>
 </html>
-
-<!-- https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec -->
-<!-- 1MJ3GqhHfzOO8SqGEUzKNmIbJkqX4mRk7GfZAuSKnT8s -->
