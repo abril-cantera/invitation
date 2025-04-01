@@ -58,11 +58,12 @@
         <p class="details">Te esperamos para celebrar juntos este día tan especial.</p>
     </div>
     
-    <!-- Formulario para ingresar nombre y apellido -->
+    <!-- Formulario con nombre, apellido y cantidad de personas -->
     <div class="container form-container">
         <h2>Confirma tu asistencia</h2>
-        <input type="text" id="nombre" placeholder="Tu nombre" required>
-        <input type="text" id="apellido" placeholder="Tu apellido" required>
+        <input type="text" id="nombre" placeholder="Tu nombre" required oninput="buscarCantidad()">
+        <input type="text" id="apellido" placeholder="Tu apellido" required oninput="buscarCantidad()">
+        <p id="cantidad-texto"></p>
         <div class="confirm-section">
             <button class="confirm-button" onclick="confirmAttendance('Sí')">Sí, asistiré</button>
             <button class="confirm-button" onclick="confirmAttendance('No')">No podré asistir</button>
@@ -70,26 +71,57 @@
     </div>
 
     <script>
-        function confirmAttendance(response) {
+        function buscarCantidad() {
             const firstName = document.getElementById("nombre").value.trim();
             const lastName = document.getElementById("apellido").value.trim();
-            
+            const cantidadTexto = document.getElementById("cantidad-texto");
+
             if (firstName === "" || lastName === "") {
-                alert("Por favor, ingresa tu nombre y apellido para confirmar.");
+                cantidadTexto.innerText = "";
                 return;
             }
 
-            sendToGoogleSheets(firstName, lastName, response);
+            const url = `https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec?nombre=${encodeURIComponent(firstName)}&apellido=${encodeURIComponent(lastName)}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.cantidad !== "No encontrado") {
+                        cantidadTexto.innerText = `Personas permitidas: ${data.cantidad}`;
+                    } else {
+                        cantidadTexto.innerText = "Nombre no encontrado.";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    cantidadTexto.innerText = "Error al obtener datos.";
+                });
+        }
+
+        function confirmAttendance(response) {
+            const firstName = document.getElementById("nombre").value.trim();
+            const lastName = document.getElementById("apellido").value.trim();
+            const cantidadTexto = document.getElementById("cantidad-texto").innerText;
+
+            if (firstName === "" || lastName === "" || cantidadTexto === "" || cantidadTexto === "Nombre no encontrado.") {
+                alert("Por favor, ingresa un nombre válido.");
+                return;
+            }
+
+            const cantidad = cantidadTexto.replace("Personas permitidas: ", "");
+
+            sendToGoogleSheets(firstName, lastName, response, cantidad);
             alert("¡Gracias por confirmar tu asistencia!");
         }
 
-        function sendToGoogleSheets(firstName, lastName, response) {
+        function sendToGoogleSheets(firstName, lastName, response, cantidad) {
             const url = "https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec"; 
             
             const formData = new FormData();
             formData.append("nombre", firstName);
             formData.append("apellido", lastName);
             formData.append("confirmacion", response);
+            formData.append("cantidad", cantidad);
             
             fetch(url, {
                 method: "POST",
@@ -102,3 +134,6 @@
     </script>
 </body>
 </html>
+
+<!-- https://script.google.com/macros/s/AKfycbzsa4SbWxgUYv2g9VqyAZrdxTD_Jsv1x_7w7_MAUeM1J4X8AMr7btt-dPA7rKIl481cHQ/exec -->
+<!-- 1MJ3GqhHfzOO8SqGEUzKNmIbJkqX4mRk7GfZAuSKnT8s -->
